@@ -1,0 +1,53 @@
+;Use the blow said Command and Paraneters
+;Tally.exe /NOINILOAD /NOINITDL /TDL:D:\Documents\myTDL\myTDL.txt /NOGUI /DATA:"D:\Tally.ERP9\Data"/LOAD:10000 /ACTION:CALL:CreateTxtFile
+
+[System : Events]
+AppStart1:System Start:True:Trigger Key:Alt+W
+
+[#Part:SVCompanyUser]
+    On:Focus:yes:Action:Call:CmpPassword
+
+[#Menu:Gateway of Tally]
+    Add:Top Button:btnClickMe
+
+[Button:btnClickMe]
+    Title:"Click Me"
+    Key:Alt+W
+    Action:Call:CreateTxtFile
+
+[Function:CmpPassword]
+    00:Action:Trigger Key:Esc
+
+
+[Function:CreateTxtFile]
+    10:If:$(Company,##SVCurrentCompany).IsSecurityOn=No
+    20:Open File:"C:\DATA\Company.999":Text:Write
+    30:Truncate File
+    40:Write File Line:"Company Name ! "+ $$String:##SVCurrentCompany
+    50:Write File Line:"Company GST  ! "+ $$String:@@CMPCurrGSTNumber
+    60:Write File Line:"PAN          ! "+ $$String:@@PanNumber
+    70:Write File Line:"Date From    ! "+ $$String:@@StartDate
+    80:Write File Line:"Date To      ! "+ $$String:@@EndingDate
+    90:Write File Line:""
+   100:Write File Line:"Gross Profit ! "+ $$String:@@GrossProfitTot
+   110:Write File Line:"Closing Stock! "+ $$String:@@BSClosingStock
+   120:Write File Line:"Sales Account! "+ $$String:@@NettSales
+   130:Write File Line:"Direct Income! "+ $$String:@@DirectIncome
+   140:Write File Line:""
+   150:Write File Line:"Nett Profit  ! "+ $$String:@@NetProfitTot
+   160:Write File Line:"Transfered   ! "+ $$String:@@BSClosingProfit
+   170:Close Target File
+   180:End If
+
+
+[System:Formula]
+        CMPCurrGSTNumber: $GSTRegNumber:TaxUnit:@@CMPExcisePrimaryGodown
+        PanNumber       : $IncomeTAXNumber:Company:##SVCurrentCompany
+        StartDate       : $$Max:$$SystemPeriodFrom:$StartingFrom:Company:##SVCurrentCompany
+        EndingDate      : $$Min:@@FinYrEnding:$EndingAt:Company:##SVCurrentCompany
+        GrossProfitTot  : $$AsPositive:$$Negative:$ClosingGrossProfit:Company:##SVCurrentCompany
+        BSClosingStock  : $$AsPositive:$ClosingBalance:Group:$$GroupStock
+        NettSales       : $TBalClosing:Group:$$GroupSales
+        DirectIncome    : $ClosingBalance:Group:$$GroupDirectIncomes
+        NetProfitTot    : $$AsPositive:$$Negative:$ClosingProfit:Company:##SVCurrentCompany
+        BSClosingProfit : $$AsPositive:$ClosingProfit:Company:##SVCurrentCompany

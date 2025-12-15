@@ -1,0 +1,4 @@
+C:\
+Click Me to Get Clients Folder Path
+D:\Tally.ERP9\tally.exe
+D:\TallyPrime\tally.exe
